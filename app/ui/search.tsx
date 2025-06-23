@@ -1,8 +1,29 @@
-'use client';
+"use client";
 
-import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
+import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
+import { useSearchParams, usePathname, useRouter } from "next/navigation";
 
 export default function Search({ placeholder }: { placeholder: string }) {
+  // useSearchParams is a hook that returns the current URL's search parameters
+  const searchParams = useSearchParams();
+  // usePathname is a hook that returns the current URL's pathname
+  const pathname = usePathname();
+  // useRouter is a hook that returns the router object, which has methods to navigate
+  // replace is a method that replaces the current URL with a new one
+  const { replace } = useRouter();
+
+  function handleSearch(term: string) {
+    // create a new URLSearchParams object from the current search params
+    const params = new URLSearchParams(searchParams);
+    if (term) {
+      params.set("query", term);
+    } else {
+      params.delete("query");
+    }
+    // replace the current URL with the new search params
+    // this will not cause a full page reload, just update the URL
+    replace(`${pathname}?${params.toString()}`);
+  }
   return (
     <div className="relative flex flex-1 flex-shrink-0">
       <label htmlFor="search" className="sr-only">
@@ -11,6 +32,8 @@ export default function Search({ placeholder }: { placeholder: string }) {
       <input
         className="peer block w-full rounded-md border border-gray-200 py-[9px] pl-10 text-sm outline-2 placeholder:text-gray-500"
         placeholder={placeholder}
+        onChange={(e) => handleSearch(e.target.value)}
+        defaultValue={searchParams.get("query")?.toString()}
       />
       <MagnifyingGlassIcon className="absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
     </div>
